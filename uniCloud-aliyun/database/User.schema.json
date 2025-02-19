@@ -1,0 +1,97 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "userId": {
+      "bsonType": "string",
+      "description": "用户 ID，主键"
+    },
+    "nickname": {
+      "bsonType": "string",
+      "description": "用户昵称"
+    },
+    "avatarUrl": {
+      "bsonType": "string",
+      "description": "头像 URL"
+    },
+    "email": {
+      "bsonType": "string",
+      "description": "电子邮件"
+    },
+    "registerTime": {
+      "bsonType": "date",
+      "description": "注册时间"
+    },
+    "password": {
+      "bsonType": "string",
+      "description": "用户密码"
+    },
+    "lastLoginTime": {
+      "bsonType": "date",
+      "description": "最后登录时间"
+    },
+    "status": {
+      "bsonType": "string",
+      "enum": ["active", "inactive", "banned"],
+      "description": "账户状态",
+      "default": "active"
+    },
+    "phone": {
+      "bsonType": "string",
+      "description": "电话号码"
+    },
+    "token": {
+      "bsonType": "string",
+      "description": "用户身份令牌"
+    },
+    "bio": {
+      "bsonType": "string",
+      "description": "用户简介"
+    },
+    "memberStatus": {
+      "bsonType": "string",
+      "enum": ["none", "active", "expired"],
+      "description": "会员状态：非会员/有效/已过期",
+      "default": "none"
+    },
+    "membertype": {
+      "bsonType": "string",
+      "enum": ["none", "daily", "monthly", "times"],
+      "description": "会员卡类型：非会员/日卡/月卡/次卡",
+      "default": "none"
+    },
+    "remainingDays": {
+	  "bsonType": "int",
+	  "description": "剩余天数（仅用于日卡/月卡）",
+	  "default": 0
+	},
+	"remainingTimes": {
+	  "bsonType": "int",
+	  "description": "剩余次数（仅用于次卡类型）",
+	  "default": 0
+	},
+	 "usedTrial": {
+	  "bsonType": "bool",
+	  "description": "是否为免费体验卡",
+	  "default": false
+	},
+    "memberStartTime": {
+      "bsonType": "date",
+      "description": "会员开始时间"
+    },
+    "memberExpireTime": {
+      "bsonType": "date",
+      "description": "会员到期时间"
+    }
+  },
+  "required": [
+    "userId",
+    "nickname",
+    "avatarUrl",
+    "email",
+    "registerTime",
+    "lastLoginTime",
+    "status",
+    "phone",
+    "token"
+  ]
+}

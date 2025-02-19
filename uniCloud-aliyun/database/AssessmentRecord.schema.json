@@ -1,0 +1,51 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "recordId": {
+      "bsonType": "string",
+      "description": "记录 ID，主键",
+      "uniqueItems": true
+    },
+    "userId": {
+      "bsonType": "string",
+      "description": "用户 ID"
+    },
+    "fileId": {
+      "bsonType": "string",
+      "description": "文件 ID"
+    },
+    "assessmentTime": {
+      "bsonType": "date",
+      "description": "评估时间"
+    },
+    "score": {
+      "bsonType": "double",
+      "description": "得分"
+    },
+    "uploadUrl": {
+      "bsonType": "string",
+      "description": "上传文件的 URL"
+    },
+    "name": {
+      "bsonType": "string",
+      "description": "记录名称"
+    },
+    "totaltoken": {
+      "bsonType": "double",
+      "description": "总 Token 数"
+    },
+    "record": {
+      "bsonType": "string",
+      "description": "记录内容"
+    },
+    "text": {
+      "bsonType": "string",
+      "description": "文本内容"
+    },
+    "duration": {
+      "bsonType": "double",
+      "description": "持续时间（秒）"
+    }
+  },
+  "required": ["recordId", "userId", "fileId"]
+}

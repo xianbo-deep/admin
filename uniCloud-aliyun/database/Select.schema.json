@@ -1,0 +1,30 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "selectId": {
+      "bsonType": "int",
+      "description": "选择 ID"
+    },
+    "fileId": {
+      "bsonType": "string",
+      "description": "文件 ID，可能为空"
+    },
+    "userId": {
+      "bsonType": "string",
+      "description": "用户 ID"
+    },
+    "packageName": {
+      "bsonType": "string",
+      "description": "套餐名称"
+    },
+	"packageId": {
+	  "bsonType": "string",
+	  "description": "套餐Id"
+	},
+    "timestamp": {
+      "bsonType": "date",
+      "description": "时间戳"
+    }
+  },
+  "required": ["selectId", "userId", "packageName", "timestamp"]
+}

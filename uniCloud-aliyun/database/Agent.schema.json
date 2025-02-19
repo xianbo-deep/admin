@@ -1,0 +1,29 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "agentId": {
+      "bsonType": "string",
+      "description": "代理 ID，主键",
+      "uniqueItems": true
+    },
+    "identifier": {
+      "bsonType": "string",
+      "description": "唯一标识符"
+    },
+    "description": {
+      "bsonType": "string",
+      "description": "描述信息"
+    },
+    "apiPath": {
+      "bsonType": "string",
+      "description": "API路径"
+    },
+    "status": {
+      "bsonType": "string",
+      "enum": ["normal", "disabled"],
+      "description": "状态",
+      "default": "normal"
+    }
+  },
+  "required": ["agentId", "identifier", "apiPath"]
+}

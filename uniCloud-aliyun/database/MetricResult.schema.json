@@ -1,0 +1,64 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "resultId": {
+      "bsonType": "string",
+      "description": "评估结果 ID，主键",
+      "uniqueItems": true
+    },
+    "recordId": {
+      "bsonType": "string",
+      "description": "记录 ID"
+    },
+    "evaluationTime": {
+      "bsonType": "date",
+      "description": "评估时间"
+    },
+    "metrics": {
+      "bsonType": "array",
+      "description": "评估指标列表",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "metricId": {
+            "bsonType": "string",
+            "description": "指标 ID"
+          },
+          "metricname": {
+            "bsonType": "string",
+            "description": "指标名称"
+          },
+          "score": {
+            "bsonType": "double",
+            "description": "分数"
+          },
+          "description": {
+            "bsonType": "object",
+            "description": "描述信息",
+            "properties": {
+              "level": {
+                "bsonType": "string",
+                "description": "评估等级"
+              },
+              "suggestion": {
+                "bsonType": "string",
+                "description": "改进建议"
+              },
+              "evaluation": {
+                "bsonType": "string",
+                "description": "评估结论"
+              }
+            },
+            "required": ["text", "level", "suggestion", "evaluation"]
+          },
+          "token": {
+            "bsonType": "double",
+            "description": "对应的 Token 数量"
+          }
+        },
+        "required": ["metricId", "metricname", "score", "description"]
+      }
+    }
+  },
+  "required": ["resultId", "recordId", "evaluationTime", "metrics"]
+}

@@ -1,0 +1,36 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "adminId": {
+      "bsonType": "string",
+      "description": "管理员 ID，主键"
+    },
+    "nickname": {
+      "bsonType": "string",
+      "description": "管理员昵称"
+    },
+    "lastLoginTime": {
+      "bsonType": "int",
+      "description": "最后登录时间，时间戳"
+    },
+    "registerTime": {
+      "bsonType": "int",
+      "description": "注册时间，时间戳"
+    },
+    "account": {
+      "bsonType": "string",
+      "description": "管理员账号"
+    },
+    "password": {
+      "bsonType": "string",
+      "description": "加密后的密码"
+    },
+    "status": {
+      "bsonType": "string",
+      "enum": ["active", "inactive", "banned"],
+      "description": "账户状态",
+      "default": "active"
+    }
+  },
+  "required": ["adminId", "nickname", "lastLoginTime", "registerTime", "account", "password", "status"]
+}

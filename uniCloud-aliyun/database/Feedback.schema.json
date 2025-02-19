@@ -1,0 +1,45 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "feedbackId": {
+      "bsonType": "string",
+      "description": "反馈 ID，主键",
+      "uniqueItems": true
+    },
+    "userId": {
+      "bsonType": "string",
+      "description": "用户 ID"
+    },
+    "submitTime": {
+      "bsonType": "int",
+      "description": "提交时间"
+    },
+    "content": {
+      "bsonType": "string",
+      "description": "反馈内容"
+    },
+    "status": {
+      "bsonType": "string",
+      "enum": ["pending", "processed"],
+      "description": "状态",
+      "default": "pending"
+    },
+    "processTime": {
+      "bsonType": "int",
+      "description": "处理时间"
+    },
+    "adminId": {
+      "bsonType": "string",
+      "description": "管理员 ID"
+    },
+    "contact": {
+      "bsonType": "double",
+      "description": "联系方式"
+    },
+    "feedbacktype": {
+      "bsonType": "string",
+      "description": "反馈类型"
+    }
+  },
+  "required": ["feedbackId", "userId", "submitTime", "content"]
+}

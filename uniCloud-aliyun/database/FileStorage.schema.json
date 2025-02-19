@@ -1,0 +1,31 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "fileId": {
+      "bsonType": "string",
+      "description": "文件 ID，主键",
+      "uniqueItems": true
+    },
+    "userId": {
+      "bsonType": "string",
+      "description": "用户 ID"
+    },
+    "fileFormat": {
+      "bsonType": "string",
+      "description": "文件格式"
+    },
+    "fileUrl": {
+      "bsonType": "string",
+      "description": "文件存储 URL"
+    },
+    "uploadTime": {
+      "bsonType": "date",
+      "description": "文件上传时间"
+    },
+    "name": {
+      "bsonType": "string",
+      "description": "文件名称"
+    }
+  },
+  "required": ["fileId", "userId", "fileFormat", "fileUrl", "uploadTime"]
+}
