@@ -37,7 +37,7 @@
       <unicloud-db 
         ref="udb" 
         collection="Agent" 
-        field="agentId,identifier,description,apiPath,status"
+        field="agentId,identifier,description,status,method"
         :where="where"
         page-data="replace" 
         :getcount="true" 
@@ -61,7 +61,7 @@
             <uni-th align="center" sortable @sort-change="sortChange($event, 'agentId')">Agent ID</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'identifier')">标识符</uni-th>
             <uni-th align="center">描述信息</uni-th>
-            <uni-th align="center">API路径</uni-th>
+            <uni-th align="center">请求方式</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'status')">状态</uni-th>
             <uni-th align="center">操作</uni-th>
           </uni-tr>
@@ -71,9 +71,7 @@
             <uni-td align="center">
               <view class="ellipsis" :title="item.description">{{item.description || '-'}}</view>
             </uni-td>
-            <uni-td align="center">
-              <view class="ellipsis" :title="item.apiPath">{{item.apiPath}}</view>
-            </uni-td>
+            <uni-td align="center">{{item.method || 'POST'}}</uni-td>
             <uni-td align="center">
               <uni-tag :text="item.status === 'normal' ? '正常' : '禁用'" 
                       :type="item.status === 'normal' ? 'success' : 'error'" />
@@ -126,7 +124,6 @@ const dbCmd = db.command
 // 表查询配置
 const dbOrderBy = 'agentId asc'
 const dbSearchFields = ['agentId', 'identifier', 'description']
-// 分页配置
 const pageSize = 20
 const pageCurrent = 1
 
@@ -162,7 +159,7 @@ export default {
         return ''
       }
       const queryRe = new RegExp(query, 'i')
-      return db.command.or(
+      return dbCmd.or(
         dbSearchFields.map(name => ({
           [name]: queryRe
         }))
@@ -264,6 +261,13 @@ export default {
       })
     },
 
+    selectionChange(e) {
+      if (!e || !e.detail || !Array.isArray(e.detail.index)) {
+        return
+      }
+      this.selectedIndexs = e.detail.index
+    },
+
     selectedItems() {
       if (!this.data || !this.selectedIndexs) {
         return []
@@ -313,13 +317,6 @@ export default {
       }
     },
 
-    selectionChange(e) {
-      if (!e || !e.detail || !Array.isArray(e.detail.index)) {
-        return
-      }
-      this.selectedIndexs = e.detail.index
-    },
-
     async confirmDelete(id) {
       if (!id) return
       
@@ -350,123 +347,78 @@ export default {
   }
 }
 </script>
+
 <style>
-	/* agent.css */
-	
-	/* 布局相关 */
-	.fix-top-window {
-	  padding: 0;
-	  margin: 0;
-	}
-	
-	.uni-container {
-	  padding: 15px;
-	}
-	
-	.uni-header {
-	  padding: 0 15px;
-	  display: flex;
-	  flex-direction: row;
-	  justify-content: space-between;
-	  align-items: center;
-	  border-bottom: 1px solid #e5e5e5;
-	  background-color: #fff;
-	}
-	
-	/* 工具栏样式 */
-	.uni-group {
-	  display: flex;
-	  align-items: center;
-	  gap: 8px;
-	}
-	
-	.uni-search {
-	  flex: 1;
-	  padding: 0 10px;
-	  height: 29px;
-	  line-height: 29px;
-	  font-size: 12px;
-	  border: 1px solid #DCDFE6;
-	  border-radius: 4px;
-	  min-width: 200px;
-	}
-	
-	/* 表格相关样式 */
-	.ellipsis {
-	  overflow: hidden;
-	  white-space: nowrap;
-	  text-overflow: ellipsis;
-	  max-width: 200px;
-	  display: inline-block;
-	}
-	
-	/* 分页样式 */
-	.uni-pagination-box {
-	  margin-top: 20px;
-	}
-	
-	/* 弹窗表单样式 */
-	.dialog-content {
-	  padding: 20px;
-	}
-	
-	.uni-input {
-	  height: 35px;
-	  padding: 0 10px;
-	  border: 1px solid #DCDFE6;
-	  border-radius: 4px;
-	  width: 100%;
-	  box-sizing: border-box;
-	  font-size: 14px;
-	}
-	
-	/* 表单项间距 */
-	.uni-forms-item {
-	  margin-bottom: 15px;
-	}
-	
-	/* 按钮样式 */
-	.uni-button {
-	  padding: 0 12px;
-	  margin-left: 5px;
-	  margin-right: 5px;
-	}
-	
-	.uni-button[size="mini"] {
-	  font-size: 12px;
-	}
-	
-	/* 响应式布局 */
-	@media screen and (max-width: 768px) {
-	  .hide-on-phone {
-	    display: none;
-	  }
-	  
-	  .dialog-content {
-	    padding: 10px;
-	  }
-	  
-	  .uni-input {
-	    font-size: 12px;
-	  }
-	  
-	  .uni-search {
-	    min-width: 120px;
-	  }
-	  
-	  .uni-header {
-	    flex-direction: column;
-	    padding: 10px;
-	    gap: 10px;
-	  }
-	  
-	  .uni-group {
-	    width: 100%;
-	    flex-wrap: wrap;
-	  }
-	  
-	  .ellipsis {
-	    max-width: 150px;
-	  }
-	}
+.fix-top-window {
+  padding: 0;
+  margin: 0;
+}
+
+.uni-container {
+  padding: 15px;
+}
+
+.uni-header {
+  padding: 0 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #fff;
+}
+
+.uni-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.uni-search {
+  flex: 1;
+  padding: 0 10px;
+  height: 29px;
+  line-height: 29px;
+  font-size: 12px;
+  border: 1px solid #DCDFE6;
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  display: inline-block;
+}
+
+.uni-pagination-box {
+  margin-top: 20px;
+}
+
+@media screen and (max-width: 768px) {
+  .hide-on-phone {
+    display: none;
+  }
+  
+  .uni-header {
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .uni-group {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .uni-search {
+    min-width: 120px;
+  }
+  
+  .ellipsis {
+    max-width: 150px;
+  }
+}
 </style>

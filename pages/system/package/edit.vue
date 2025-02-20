@@ -18,13 +18,20 @@
           placeholder="请输入套餐名称" 
         />
       </uni-forms-item>
-      
-      <uni-forms-item name="description" label="套餐描述">
-        <uni-easyinput 
-          type="textarea" 
-          v-model="formData.description" 
-          placeholder="请输入套餐描述" 
-        />
+
+      <uni-forms-item name="AgentId" label="Agent" required>
+        <view class="select-box">
+          <picker 
+            @change="onAgentChange" 
+            :value="agentIndex" 
+            :range="agentOptions" 
+            range-key="identifier"
+          >
+            <view class="picker-item">
+              {{ getAgentLabel() }}
+            </view>
+          </picker>
+        </view>
       </uni-forms-item>
 
       <uni-forms-item name="status" label="套餐状态" required>
@@ -135,12 +142,14 @@ export default {
       formData: {
         package_id: '',
         package_name: '',
-        description: '',
+        AgentId: '',
         status: 'active',
         metrics: []
       },
       statusIndex: 0,
+      agentIndex: 0,
       statusOptions,
+      agentOptions: [], // Agent列表
       availableMetrics: [], // 可选的指标列表
       selectedMetricIds: [], // 临时存储选中的指标ID
       rules: {
@@ -156,6 +165,12 @@ export default {
             errorMessage: '请输入套餐名称'
           }]
         },
+        AgentId: {
+          rules: [{
+            required: true,
+            errorMessage: '请选择Agent'
+          }]
+        },
         status: {
           rules: [{
             required: true,
@@ -167,6 +182,7 @@ export default {
   },
   
   async onLoad(e) {
+    await this.getAgentList();
     if (e.id) {
       this.formDataId = e.id;
       await this.getDetail(e.id);
@@ -175,6 +191,41 @@ export default {
   },
   
   methods: {
+    // 获取Agent列表
+    async getAgentList() {
+      try {
+        const res = await db.collection('Agent')
+          .where('status == "normal"')
+          .field('agentId,identifier')
+          .get();
+          
+        if (res.result && res.result.data) {
+          this.agentOptions = res.result.data;
+        }
+      } catch (err) {
+        uni.showModal({
+          content: '获取Agent列表失败：' + err.message,
+          showCancel: false
+        });
+      }
+    },
+
+    // 获取Agent显示文本
+    getAgentLabel() {
+      if (!this.formData.AgentId || !this.agentOptions.length) {
+        return '请选择Agent';
+      }
+      const agent = this.agentOptions.find(a => a.agentId === this.formData.AgentId);
+      return agent ? agent.identifier : '请选择Agent';
+    },
+
+    // Agent选择改变
+    onAgentChange(e) {
+      const index = e.detail.value;
+      this.agentIndex = index;
+      this.formData.AgentId = this.agentOptions[index].agentId;
+    },
+
     // 获取状态显示文本
     getStatusLabel(value) {
       const option = statusOptions.find(opt => opt.value === value);
@@ -206,28 +257,24 @@ export default {
       }
     },
 
-    // 显示指标选择器
+    // 指标选择器相关方法...
     showMetricSelector() {
       this.selectedMetricIds = this.formData.metrics.map(m => m.metric_id);
       this.$refs.metricSelector.open();
     },
 
-    // 关闭指标选择器
     closeMetricSelector() {
       this.$refs.metricSelector.close();
     },
 
-    // 指标选择变化
     onMetricSelect(e) {
       this.selectedMetricIds = e.detail.value;
     },
 
-    // 检查指标是否已选中
     isMetricSelected(metricId) {
       return this.selectedMetricIds.includes(metricId);
     },
 
-    // 确认选择指标
     confirmSelectMetrics() {
       const selectedMetrics = this.availableMetrics
         .filter(metric => this.selectedMetricIds.includes(metric.metricId))
@@ -240,7 +287,6 @@ export default {
       this.closeMetricSelector();
     },
 
-    // 移除指标
     removeMetric(index) {
       uni.showModal({
         title: '提示',
@@ -253,12 +299,10 @@ export default {
       });
     },
 
-    // 提交表单
     submitForm() {
       this.$refs.form.submit();
     },
 
-    // 表单提交
     async submit(event) {
       const { value, errors } = event.detail;
 
@@ -271,12 +315,10 @@ export default {
         mask: true
       });
 
-      // 确保 package_id 是数字类型
       value.package_id = parseInt(value.package_id);
 
       try {
         if (!this.formDataId) {
-          // 新增时检查 ID 是否存在
           const existCheck = await db.collection(dbCollectionName)
             .where('package_id == $1', [value.package_id])
             .get();
@@ -304,7 +346,6 @@ export default {
       }
     },
 
-    // 提交数据
     async submitData(value) {
       if (this.formDataId) {
         await db.collection(dbCollectionName)
@@ -316,19 +357,20 @@ export default {
       }
     },
 
-    // 获取详情
     async getDetail(id) {
       uni.showLoading({ mask: true });
       try {
         const res = await db.collection(dbCollectionName)
           .doc(id)
-          .field('package_id,package_name,description,status,metrics')
+          .field('package_id,package_name,AgentId,status,metrics')
           .get();
           
         const data = res.result.data[0];
         if (data) {
           this.formData = Object.assign({}, this.formData, data);
           this.statusIndex = statusOptions.findIndex(opt => opt.value === data.status);
+          // 设置Agent索引
+          this.agentIndex = this.agentOptions.findIndex(opt => opt.agentId === data.AgentId);
         }
       } catch (err) {
         uni.showModal({
@@ -344,6 +386,7 @@ export default {
 </script>
 
 <style>
+/* 样式部分保持不变 */
 .uni-container {
   padding: 15px;
 }

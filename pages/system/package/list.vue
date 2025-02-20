@@ -29,7 +29,7 @@
       <unicloud-db 
         ref="udb" 
         collection="Package" 
-        field="package_id,package_name,description,status,metrics"
+        field="package_id,package_name,AgentId,status,metrics"
         :where="where"
         page-data="replace" 
         :getcount="true" 
@@ -50,7 +50,7 @@
           <uni-tr>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'package_id')">套餐ID</uni-th>
             <uni-th align="center">套餐名称</uni-th>
-            <uni-th align="center">描述</uni-th>
+            <uni-th align="center">Agent ID</uni-th>
             <uni-th align="center">包含指标</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'status')">状态</uni-th>
             <uni-th align="center">操作</uni-th>
@@ -61,7 +61,7 @@
               <view class="ellipsis" :title="item.package_name">{{item.package_name}}</view>
             </uni-td>
             <uni-td align="center">
-              <view class="ellipsis" :title="item.description">{{item.description || '暂无描述'}}</view>
+              <view class="ellipsis" :title="item.AgentId">{{item.AgentId}}</view>
             </uni-td>
             <uni-td align="center">
               <view class="metrics-list">
@@ -120,8 +120,8 @@ const db = uniCloud.database()
 const dbCmd = db.command
 
 // 表查询配置
-const dbOrderBy = 'package_id asc' // 默认按套餐ID升序
-const dbSearchFields = ['package_name'] // 支持模糊搜索的字段
+const dbOrderBy = 'package_id asc'
+const dbSearchFields = ['package_name']
 const pageSize = 20
 const pageCurrent = 1
 

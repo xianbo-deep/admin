@@ -24,6 +24,35 @@
         />
       </uni-forms-item>
 
+      <uni-forms-item label="请求方式" name="method">
+        <view class="select-box">
+          <picker 
+            @change="onMethodChange" 
+            :value="methodIndex" 
+            :range="methodOptions"
+          >
+            <view class="picker-view">
+              {{ formData.method || 'POST' }}
+            </view>
+          </picker>
+        </view>
+      </uni-forms-item>
+
+      <uni-forms-item label="API授权令牌" name="authorization" required>
+        <uni-easyinput 
+          v-model="formData.authorization" 
+          type="password"
+          placeholder="请输入API授权令牌"
+        />
+      </uni-forms-item>
+
+      <uni-forms-item label="工作流ID" name="workflowId" required>
+        <uni-easyinput 
+          v-model="formData.workflowId" 
+          placeholder="请输入工作流ID"
+        />
+      </uni-forms-item>
+
       <uni-forms-item label="描述" name="description">
         <uni-easyinput 
           type="textarea" 
@@ -44,14 +73,21 @@
 const db = uniCloud.database();
 const dbName = 'Agent';
 
+const methodOptions = ['GET', 'POST', 'PUT', 'DELETE'];
+
 export default {
   data() {
     return {
       id: '',
+      methodIndex: 1, // 默认POST
+      methodOptions,
       formData: {
         agentId: '',
         identifier: '',
         apiPath: '',
+        method: 'POST',
+        authorization: '',
+        workflowId: '',
         description: '',
         status: 'normal'
       },
@@ -67,6 +103,12 @@ export default {
         },
         apiPath: {
           rules: [{ required: true, errorMessage: '请输入API路径' }]
+        },
+        authorization: {
+          rules: [{ required: true, errorMessage: '请输入API授权令牌' }]
+        },
+        workflowId: {
+          rules: [{ required: true, errorMessage: '请输入工作流ID' }]
         }
       }
     }
@@ -80,6 +122,12 @@ export default {
   },
 
   methods: {
+    onMethodChange(e) {
+      const index = e.detail.value;
+      this.methodIndex = index;
+      this.formData.method = this.methodOptions[index];
+    },
+
     async submitForm() {
       try {
         const valid = await this.$refs.form.validate();
@@ -91,6 +139,9 @@ export default {
           agentId: this.formData.agentId.trim(),
           identifier: this.formData.identifier.trim(),
           apiPath: this.formData.apiPath.trim(),
+          method: this.formData.method,
+          authorization: this.formData.authorization.trim(),
+          workflowId: this.formData.workflowId.trim(),
           description: this.formData.description || '',
           status: this.formData.status
         };
@@ -140,11 +191,13 @@ export default {
       try {
         uni.showLoading({ mask: true });
         const { data } = await db.collection(dbName).doc(this.id)
-          .field('agentId,identifier,apiPath,description,status')
+          .field('agentId,identifier,apiPath,method,authorization,workflowId,description,status')
           .get();
           
         if (data[0]) {
           this.formData = data[0];
+          // 设置请求方式的索引
+          this.methodIndex = this.methodOptions.indexOf(data[0].method || 'POST');
         }
       } catch (err) {
         uni.showModal({
@@ -175,5 +228,17 @@ export default {
 }
 .btn {
   width: 200rpx;
+}
+.select-box {
+  width: 100%;
+}
+.picker-view {
+  height: 35px;
+  line-height: 35px;
+  padding: 0 10px;
+  border: 1px solid #DCDFE6;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
 }
 </style>

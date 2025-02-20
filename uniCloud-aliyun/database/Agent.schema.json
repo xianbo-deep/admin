@@ -18,6 +18,18 @@
       "bsonType": "string",
       "description": "API路径"
     },
+    "authorization": {
+      "bsonType": "string",
+      "description": "API授权令牌"
+    },
+	"method":{
+	  "bsonType": "string",
+	  "description": "请求方式"
+	},
+    "workflowId": {
+      "bsonType": "string",
+      "description": "工作流ID"
+    },
     "status": {
       "bsonType": "string",
       "enum": ["normal", "disabled"],
@@ -25,5 +37,5 @@
       "default": "normal"
     }
   },
-  "required": ["agentId", "identifier", "apiPath"]
+  "required": ["agentId", "identifier", "apiPath", "authorization", "workflowId"]
 }
