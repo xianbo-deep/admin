@@ -1,4 +1,3 @@
-<!-- details.vue -->
 <template>
   <view class="detail-container">
     <view class="detail-card">
@@ -60,6 +59,45 @@
         </view>
       </view>
 
+      <!-- 指标评测结果 -->
+      <view class="metrics-detail">
+        <view class="section-title">指标评测结果</view>
+        <view class="metric-card" v-if="metricResults?.metrics?.length">
+          <view class="metric-content">
+            <view v-for="(metric, index) in metricResults.metrics" :key="index" class="metric-result-item">
+              <view class="metric-header">
+                <text class="metric-name">{{metric.metricname}}</text>
+                <text :class="['metric-score', getScoreClass(metric.score)]">{{metric.score}}分</text>
+              </view>
+              
+              <view class="metric-details">
+                <view class="metric-detail-item">
+                  <text class="detail-label">评估等级：</text>
+                  <text class="detail-value">{{metric.description.level}}</text>
+                </view>
+                <view class="metric-detail-item">
+                  <text class="detail-label">评估结论：</text>
+                  <text class="detail-value">{{metric.description.evaluation}}</text>
+                </view>
+                <view class="metric-detail-item">
+                  <text class="detail-label">改进建议：</text>
+                  <text class="detail-value">{{metric.description.suggestion}}</text>
+                </view>
+                <view class="metric-detail-item" v-if="metric.token">
+                  <text class="detail-label">Token消耗：</text>
+                  <text class="detail-value">{{metric.token}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="metric-card" v-else>
+          <view class="metric-content">
+            <text class="empty-text">暂无评测结果</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 文本内容 -->
       <view class="metrics-detail">
         <view class="section-title">报告</view>
@@ -97,7 +135,8 @@ const db = uniCloud.database()
 export default {
   data() {
     return {
-      details: null
+      details: null,
+      metricResults: null
     }
   },
 
@@ -143,15 +182,33 @@ export default {
 
     async getDetails(id) {
       try {
-        const res = await db.collection('AssessmentRecord').doc(id).get()
-        if (res.result.data && res.result.data.length > 0) {
-          this.details = res.result.data[0]
+        uni.showLoading({ mask: true });
+        // 获取评估记录详情
+        const recordRes = await db.collection('AssessmentRecord').doc(id).get()
+        if (recordRes.result.data && recordRes.result.data.length > 0) {
+          this.details = recordRes.result.data[0]
+          
+          // 获取对应的指标评测结果
+          if (this.details.recordId) {
+            const metricRes = await db.collection('MetricResult')
+              .where({
+                recordId: this.details.recordId
+              })
+              .get()
+              
+            if (metricRes.result.data && metricRes.result.data.length > 0) {
+              this.metricResults = metricRes.result.data[0]
+            }
+          }
         }
       } catch (error) {
+        console.error('获取详情失败:', error)
         uni.showToast({
           title: '获取详情失败',
           icon: 'error'
         })
+      } finally {
+        uni.hideLoading()
       }
     },
 
@@ -168,7 +225,6 @@ export default {
     },
 
     goBack() {
-      // 在返回前通知列表页刷新数据
       const eventChannel = this.getOpenerEventChannel()
       eventChannel.emit('refreshData')
       uni.navigateBack()
@@ -297,6 +353,66 @@ export default {
   color: #F56C6C;
 }
 
+.metric-result-item {
+  padding: 16px;
+  border: 1px solid #EBEEF5;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+
+.metric-result-item:last-child {
+  margin-bottom: 0;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #EBEEF5;
+}
+
+.metric-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.metric-score {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.metric-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-detail-item {
+  display: flex;
+}
+
+.detail-label {
+  width: 80px;
+  flex-shrink: 0;
+  color: #606266;
+}
+
+.detail-value {
+  flex: 1;
+  color: #303133;
+  word-break: break-all;
+}
+
+.empty-text {
+  color: #909399;
+  text-align: center;
+  padding: 20px 0;
+}
+
 @media screen and (max-width: 768px) {
   .detail-container {
     padding: 8px;
@@ -318,6 +434,14 @@ export default {
 
   .header-title {
     font-size: 16px;
+  }
+  
+  .metric-result-item {
+    padding: 12px;
+  }
+  
+  .detail-label {
+    width: 70px;
   }
 }
 </style>

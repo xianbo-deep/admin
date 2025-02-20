@@ -1,0 +1,23 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "name": {
+      "bsonType": "string",
+      "description": "定时任务名称"
+    },
+    "functionName": {
+      "bsonType": "string",
+      "description": "云函数名称"
+    },
+    "enabled": {
+      "bsonType": "bool",
+      "description": "是否启用",
+      "default": false
+    },
+    "updateTime": {
+      "bsonType": "timestamp",
+      "description": "更新时间"
+    }
+  },
+  "required": ["name", "functionName", "enabled"]
+}

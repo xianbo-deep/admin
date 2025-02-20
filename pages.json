@@ -368,6 +368,12 @@
 					}
 				},
 				{
+					"path": "metricresult/details",
+					"style": {
+						"navigationBarTitleText": "用户选择指标详情"
+					}
+				},
+				{
 					"path": "admin/list",
 					"style": {
 						"navigationBarTitleText": "管理员列表"
