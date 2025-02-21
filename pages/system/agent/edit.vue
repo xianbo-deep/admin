@@ -78,7 +78,7 @@ export default {
         authorization: '',
         workflowId: '',
         description: '',
-        status: 'normal'
+        status: 'active'
       },
       rules: {
         agentId: {
@@ -187,7 +187,7 @@ export default {
         authorization: value.authorization.trim(),
         workflowId: value.workflowId.trim(),
         description: value.description?.trim() || '',
-        status: value.status || 'normal'
+        status: value.status || 'active'
       };
       
       if (this.formDataId) {

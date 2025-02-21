@@ -1,4 +1,3 @@
-# pages/userManagement/index.vue
 <template>
   <view class="fix-top-window">
     <view class="uni-header">
@@ -54,6 +53,12 @@
             <uni-th align="center" sortable @sort-change="sortChange($event, 'phone')">手机号码</uni-th>
             <uni-th align="center" filter-type="select" :filter-data="statusOptions"
               @filter-change="filterChange($event, 'status')">状态</uni-th>
+            <uni-th align="center" filter-type="select" :filter-data="memberTypeOptions"
+              @filter-change="filterChange($event, 'membertype')">会员类型</uni-th>
+            <uni-th align="center" filter-type="select" :filter-data="memberStatusOptions"
+              @filter-change="filterChange($event, 'memberStatus')">会员状态</uni-th>
+            <uni-th align="center">剩余天数/次数</uni-th>
+            <uni-th align="center" sortable @sort-change="sortChange($event, 'memberExpireTime')">会员到期时间</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'email')">邮箱</uni-th>
             <uni-th align="center">简介</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'registerTime')">注册时间</uni-th>
@@ -76,6 +81,26 @@
             <uni-td align="center">{{item.phone}}</uni-td>
             <uni-td align="center">
               <uni-tag :type="getStatusType(item.status)" :text="getStatusText(item.status)"/>
+            </uni-td>
+            <uni-td align="center">
+              <uni-tag :type="getMemberTypeTag(item.membertype)" :text="getMemberTypeText(item.membertype)"/>
+            </uni-td>
+            <uni-td align="center">
+              <uni-tag :type="getMemberStatusTag(item.memberStatus)" :text="getMemberStatusText(item.memberStatus)"/>
+            </uni-td>
+            <uni-td align="center">
+              <template v-if="item.membertype === 'times'">
+                {{item.remainingTimes || 0}}次
+              </template>
+              <template v-else-if="item.membertype === 'daily' || item.membertype === 'monthly'">
+                {{item.remainingDays || 0}}天
+              </template>
+              <template v-else>
+                -
+              </template>
+            </uni-td>
+            <uni-td align="center">
+              {{item.memberExpireTime ? formatDateTime(item.memberExpireTime) : '-'}}
             </uni-td>
             <uni-td align="center">
               <uni-link :href="'mailto:' + item.email" :text="item.email"></uni-link>
@@ -147,6 +172,19 @@ export default {
         { text: "正常", value: "active" },
         { text: "未激活", value: "inactive" },
         { text: "已禁用", value: "banned" }
+      ],
+      // 会员类型选项
+      memberTypeOptions: [
+        { text: "非会员", value: "none" },
+        { text: "日卡", value: "daily" },
+        { text: "月卡", value: "monthly" },
+        { text: "次卡", value: "times" }
+      ],
+      // 会员状态选项
+      memberStatusOptions: [
+        { text: "非会员", value: "none" },
+        { text: "有效", value: "active" },
+        { text: "已过期", value: "expired" }
       ]
     }
   },
@@ -233,15 +271,64 @@ export default {
       return texts[status] || status
     },
     
+    // 获取会员类型标签样式
+    getMemberTypeTag(type) {
+      const types = {
+        none: 'default',
+        daily: 'primary',
+        monthly: 'success',
+        times: 'warning'
+      }
+      return types[type] || 'default'
+    },
+    
+    // 获取会员类型显示文本
+    getMemberTypeText(type) {
+      const texts = {
+        none: '非会员',
+        daily: '日卡',
+        monthly: '月卡',
+        times: '次卡'
+      }
+      return texts[type] || type
+    },
+    
+    // 获取会员状态标签样式
+    getMemberStatusTag(status) {
+      const types = {
+        none: 'default',
+        active: 'success',
+        expired: 'error'
+      }
+      return types[status] || 'default'
+    },
+    
+    // 获取会员状态显示文本
+    getMemberStatusText(status) {
+      const texts = {
+        none: '非会员',
+        active: '有效',
+        expired: '已过期'
+      }
+      return texts[status] || status
+    },
+    
     onqueryload(data) {
       // 数据加载完成后的处理
       if (data) {
         data.forEach(item => {
           // 处理特殊字段
           item.bio = item.bio || ''
+          // 确保字段存在
+          item.membertype = item.membertype || 'none'
+          item.memberStatus = item.memberStatus || 'none'
+          item.remainingDays = item.remainingDays || 0
+          item.remainingTimes = item.remainingTimes || 0
           // 确保时间戳存在
           item.registerTime = item.registerTime || 0
           item.lastLoginTime = item.lastLoginTime || 0
+          item.memberStartTime = item.memberStartTime || 0
+          item.memberExpireTime = item.memberExpireTime || 0
         })
       }
     },

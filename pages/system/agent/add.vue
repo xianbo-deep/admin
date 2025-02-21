@@ -89,7 +89,7 @@ export default {
         authorization: '',
         workflowId: '',
         description: '',
-        status: 'normal'
+        status: 'active'
       },
       rules: {
         agentId: {

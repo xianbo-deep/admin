@@ -420,6 +420,48 @@
 					"style": {
 						"navigationBarTitleText": "套餐编辑"
 					}
+				},
+				{
+					"path": "video/edit",
+					"style": {
+						"navigationBarTitleText": "视频编辑"
+					}
+				},
+				{
+					"path": "video/add",
+					"style": {
+						"navigationBarTitleText": "新增视频"
+					}
+				},
+				{
+					"path": "video/list",
+					"style": {
+						"navigationBarTitleText": "视频列表"
+					}
+				},
+				{
+					"path": "video/preview",
+					"style": {
+						"navigationBarTitleText": "视频预览"
+					}
+				},
+				{
+					"path": "category/list",
+					"style": {
+						"navigationBarTitleText": "类别详情"
+					}
+				},
+				{
+					"path": "category/add",
+					"style": {
+						"navigationBarTitleText": "新增类别"
+					}
+				},
+				{
+					"path": "category/edit",
+					"style": {
+						"navigationBarTitleText": "类别管理"
+					}
 				}
 			]
 		},

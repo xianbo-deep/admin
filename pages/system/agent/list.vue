@@ -73,8 +73,8 @@
             </uni-td>
             <uni-td align="center">{{item.method || 'POST'}}</uni-td>
             <uni-td align="center">
-              <uni-tag :text="item.status === 'normal' ? '正常' : '禁用'" 
-                      :type="item.status === 'normal' ? 'success' : 'error'" />
+              <uni-tag :text="item.status === 'active' ? '正常' : '禁用'" 
+                      :type="item.status === 'active' ? 'success' : 'error'" />
             </uni-td>
             <uni-td align="center">
               <view class="uni-group">
@@ -82,8 +82,8 @@
                   @click="toggleStatus(item)" 
                   class="uni-button" 
                   size="mini"
-                  :type="item.status === 'normal' ? 'warning' : 'primary'"
-                >{{item.status === 'normal' ? '禁用' : '启用'}}</button>
+                  :type="item.status === 'active' ? 'warning' : 'primary'"
+                >{{item.status === 'active' ? '禁用' : '启用'}}</button>
                 <button 
                   @click="navigateTo('./edit?id=' + item._id, false)" 
                   class="uni-button" 
@@ -230,8 +230,8 @@ export default {
     async toggleStatus(item) {
       if (!item || !item._id) return
       
-      const newStatus = item.status === 'normal' ? 'disabled' : 'normal'
-      const actionText = newStatus === 'normal' ? '启用' : '禁用'
+      const newStatus = item.status === 'active' ? 'disabled' : 'active'
+      const actionText = newStatus === 'active' ? '启用' : '禁用'
       
       uni.showModal({
         title: '提示',

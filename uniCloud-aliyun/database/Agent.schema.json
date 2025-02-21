@@ -2,7 +2,7 @@
   "bsonType": "object",
   "properties": {
     "agentId": {
-      "bsonType": "string",
+      "bsonType": "int",
       "description": "代理 ID，主键",
       "uniqueItems": true
     },
