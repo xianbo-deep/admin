@@ -8,12 +8,16 @@
     <!-- 视频播放器 -->
     <view class="video-player-container">
       <video 
+        v-if="videoData.url"
         id="myVideo" 
         class="video-player" 
         :src="videoData.url"
         @error="onVideoError"
         controls
       ></video>
+      <view v-else class="video-placeholder">
+        <text>加载中...</text>
+      </view>
     </view>
     
     <!-- 视频信息 -->
@@ -50,23 +54,23 @@
         <text class="progress-summary" v-if="progressSummary">{{ progressSummary }}</text>
       </view>
       
-      <view class="no-progress" v-if="!learningProgress || learningProgress.length === 0">
+      <view class="no-progress" v-if="!progressList || progressList.length === 0">
         <text>暂无学习记录</text>
       </view>
       
       <view class="progress-list" v-else>
         <view class="progress-header">
-          <text class="progress-col user-col">用户ID</text>
+          <text class="progress-col user-col">用户</text>
           <text class="progress-col duration-col">观看时长</text>
           <text class="progress-col status-col">状态</text>
         </view>
         
         <view 
           class="progress-row" 
-          v-for="(progress, index) in learningProgress" 
+          v-for="(progress, index) in progressList" 
           :key="index"
         >
-          <text class="progress-col user-col">{{ progress.userId }}</text>
+          <text class="progress-col user-col">{{ getUserDisplayName(progress) }}</text>
           <text class="progress-col duration-col">{{ formatDuration(progress.watchedDuration) }}</text>
           <text class="progress-col status-col" :class="{ 'completed': progress.completed }">
             {{ progress.completed ? '已完成' : '未完成' }}
@@ -86,6 +90,8 @@
 const db = uniCloud.database();
 const dbVideo = 'Video';
 const dbCategory = 'Category';
+const dbProgress = 'Progress';
+const dbUser = 'User';
 
 export default {
   data() {
@@ -93,16 +99,16 @@ export default {
       videoId: '',
       videoData: {},
       categoryName: '',
-      learningProgress: [],
-      progressSummary: ''
+      progressList: [],
+      progressSummary: '',
+      userMap: new Map() // 用于存储用户ID和用户信息的映射
     };
   },
   
   onLoad(options) {
-    // 获取视频ID
     if (options.id) {
       this.videoId = options.id;
-      this.loadVideoData();
+      this.loadData();
     } else {
       uni.showToast({
         title: '视频参数错误',
@@ -115,32 +121,46 @@ export default {
   },
   
   methods: {
+    // 加载所有数据
+    async loadData() {
+      try {
+        uni.showLoading({ title: '加载中...' });
+        await Promise.all([
+          this.loadVideoData(),
+          this.loadProgressData()
+        ]);
+        uni.hideLoading();
+      } catch (error) {
+        uni.hideLoading();
+        uni.showModal({
+          title: '加载失败',
+          content: error.message || '无法加载数据',
+          showCancel: false,
+          success: () => {
+            uni.navigateBack();
+          }
+        });
+      }
+    },
+    
     // 加载视频数据
     async loadVideoData() {
       try {
-        uni.showLoading({ title: '加载中...' });
-        
         const videoRes = await db.collection(dbVideo)
           .doc(this.videoId)
           .get();
           
-        if (videoRes.result.data.length === 0) {
+        if (!videoRes.result.data.length) {
           throw new Error('视频不存在');
         }
         
-        this.videoData = videoRes.result.data[0];
-        
-        // 提取学习进度数据
-        if (this.videoData.learningProgress && Array.isArray(this.videoData.learningProgress)) {
-          this.learningProgress = this.videoData.learningProgress;
-          
-          // 计算进度摘要
-          const totalUsers = this.learningProgress.length;
-          const completedUsers = this.learningProgress.filter(p => p.completed).length;
-          this.progressSummary = `完成率: ${completedUsers}/${totalUsers} (${Math.round(completedUsers/totalUsers*100) || 0}%)`;
-        } else {
-          this.learningProgress = [];
+        // 检查视频URL
+        const videoData = videoRes.result.data[0];
+        if (!videoData.url) {
+          throw new Error('视频地址无效');
         }
+        
+        this.videoData = videoData;
         
         // 获取分类信息
         if (this.videoData.categoryId) {
@@ -154,19 +174,66 @@ export default {
             this.categoryName = this.videoData.categoryId;
           }
         }
-        
-        uni.hideLoading();
       } catch (error) {
-        uni.hideLoading();
-        uni.showModal({
-          title: '加载失败',
-          content: error.message || '无法加载视频数据',
-          showCancel: false,
-          success: () => {
-            uni.navigateBack();
-          }
+        console.error('加载视频数据失败:', error);
+        uni.showToast({
+          title: error.message || '视频加载失败',
+          icon: 'none'
         });
+        throw error;
       }
+    },
+    
+    // 加载进度数据及相关用户信息
+    async loadProgressData() {
+      try {
+        const progressRes = await db.collection(dbProgress)
+          .where({
+            videoId: this.videoId
+          })
+          .orderBy('updateTime', 'desc')
+          .get();
+        
+        this.progressList = progressRes.result.data;
+        
+        // 获取所有用户ID
+        const userIds = [...new Set(this.progressList.map(p => p.userId))];
+        
+        // 批量获取用户信息
+        if (userIds.length > 0) {
+          const userRes = await db.collection(dbUser)
+            .where({
+              _id: db.command.in(userIds)
+            })
+            .field({
+              _id: true,
+              nickname: true,
+              avatar: true
+            })
+            .get();
+            
+          // 建立用户信息映射
+          userRes.result.data.forEach(user => {
+            this.userMap.set(user._id, user);
+          });
+        }
+        
+        // 计算进度摘要
+        if (this.progressList.length > 0) {
+          const totalUsers = this.progressList.length;
+          const completedUsers = this.progressList.filter(p => p.completed).length;
+          this.progressSummary = `完成率: ${completedUsers}/${totalUsers} (${Math.round(completedUsers/totalUsers*100) || 0}%)`;
+        }
+      } catch (error) {
+        console.error('加载进度数据失败:', error);
+        throw error;
+      }
+    },
+    
+    // 获取用户显示名称
+    getUserDisplayName(progress) {
+      const user = this.userMap.get(progress.userId);
+      return user ? user.nickname || progress.userId : progress.userId;
     },
     
     // 视频播放错误
@@ -224,6 +291,16 @@ export default {
   width: 100%;
   height: 225px;
   background-color: #000;
+}
+
+.video-placeholder {
+  width: 100%;
+  height: 225px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #999;
 }
 
 .section-title {

@@ -27,5 +27,11 @@
       "description": "文件名称"
     }
   },
+  "permission": {
+    "read": true,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
   "required": ["fileId", "userId", "fileFormat", "fileUrl", "uploadTime"]
 }

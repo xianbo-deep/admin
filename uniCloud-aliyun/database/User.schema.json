@@ -59,29 +59,41 @@
       "description": "会员卡类型：非会员/日卡/月卡/次卡",
       "default": "none"
     },
+    "cardCategory": {
+      "bsonType": "string",
+      "enum": ["none", "streamer", "review", "tutorial", "enterprise"],
+      "description": "卡类别：非会员/主播卡/测评卡/教程卡/企业卡",
+      "default": "none"
+    },
     "remainingDays": {
-	  "bsonType": "int",
-	  "description": "剩余天数（仅用于日卡/月卡）",
-	  "default": 0
-	},
-	"remainingTimes": {
-	  "bsonType": "int",
-	  "description": "剩余次数（仅用于次卡类型）",
-	  "default": 0
-	},
-	 "usedTrial": {
-	  "bsonType": "bool",
-	  "description": "是否为免费体验卡",
-	  "default": false
-	},
+      "bsonType": "int",
+      "description": "剩余天数（仅用于日卡/月卡）",
+      "default": 0
+    },
+    "remainingTimes": {
+      "bsonType": "int",
+      "description": "剩余次数（仅用于次卡类型）",
+      "default": 0
+    },
+    "usedTrial": {
+      "bsonType": "bool",
+      "description": "是否为免费体验卡",
+      "default": false
+    },
     "memberStartTime": {
-      "bsonType": "date",
+      "bsonType": "timestamp",
       "description": "会员开始时间"
     },
     "memberExpireTime": {
-      "bsonType": "date",
+      "bsonType": "timestamp",
       "description": "会员到期时间"
     }
+  },
+  "permission": {
+    "read": true,
+    "create": false,
+    "update": false,
+    "delete": false
   },
   "required": [
     "userId",

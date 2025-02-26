@@ -462,6 +462,12 @@
 					"style": {
 						"navigationBarTitleText": "类别管理"
 					}
+				},
+				{
+					"path": "user/tradedetail",
+					"style": {
+						"navigationBarTitleText": "交易详情"
+					}
 				}
 			]
 		},

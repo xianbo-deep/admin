@@ -120,7 +120,9 @@
                   class="uni-button" size="mini" type="primary">编辑</button>
                 <button @click="confirmDelete(item.userId)" 
                   class="uni-button" size="mini" type="warn">删除</button>
-              </view>
+				<button @click="navigateTo('./tradedetail?id='+item.userId+'&nickname='+item.nickname,false)"
+				  class="uni-button" size="mini" type="default">兑换详情</button>  
+              </view>              
             </uni-td>
           </uni-tr>
         </uni-table>

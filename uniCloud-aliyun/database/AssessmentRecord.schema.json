@@ -47,5 +47,11 @@
       "description": "持续时间（秒）"
     }
   },
+  "permission": {
+    "read": true,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
   "required": ["recordId", "userId", "fileId"]
 }

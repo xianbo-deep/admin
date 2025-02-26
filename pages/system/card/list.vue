@@ -2,6 +2,37 @@
   <view class="statistics-container">
     <view class="statistics-area">
       <uni-stat-breadcrumb class="uni-stat-breadcrumb-on-phone" />
+      
+      <!-- 卡类别筛选按钮 -->
+      <view class="filter-buttons">
+        <button 
+          class="filter-btn" 
+          :class="{ active: activeCardCategory === 'all' }" 
+          @click="changeCardCategory('all')"
+        >全部</button>
+        <button 
+          class="filter-btn" 
+          :class="{ active: activeCardCategory === 'streamer' }" 
+          @click="changeCardCategory('streamer')"
+        >主播卡</button>
+        <button 
+          class="filter-btn" 
+          :class="{ active: activeCardCategory === 'review' }" 
+          @click="changeCardCategory('review')"
+        >测评卡</button>
+        <button 
+          class="filter-btn" 
+          :class="{ active: activeCardCategory === 'tutorial' }" 
+          @click="changeCardCategory('tutorial')"
+        >教程卡</button>
+        <button 
+          class="filter-btn" 
+          :class="{ active: activeCardCategory === 'enterprise' }" 
+          @click="changeCardCategory('enterprise')"
+        >企业卡</button>
+      </view>
+
+      <!-- 统计卡片区域 -->
       <view class="stat-cards">
         <view class="stat-card" v-for="(stat, type) in cardStats" :key="type">
           <view class="stat-title">{{getCardTypeName(type)}}</view>
@@ -78,7 +109,6 @@
                 <text class="form-label">云函数名称</text>
                 <input class="form-input" v-model="currentConfig.functionName" placeholder="请输入云函数名称" />
               </view>
-
             </view>
             <view class="popup-footer">
               <button class="popup-btn cancel-btn" @click="closeConfigPopup">取消</button>
@@ -97,8 +127,7 @@ const $ = db.command.aggregate
 
 const cardTypeOptions = [
   { value: 'daily', label: '日卡' },
-  { value: 'monthly', label: '月卡' },
-  { value: 'times', label: '次卡' }
+  { value: 'monthly', label: '月卡' }
 ]
 
 export default {
@@ -106,9 +135,9 @@ export default {
     return {
       cardStats: {
         daily: { total: 0, unused: 0, used: 0 },
-        monthly: { total: 0, unused: 0, used: 0 },
-        times: { total: 0, unused: 0, used: 0 }
+        monthly: { total: 0, unused: 0, used: 0 }
       },
+      activeCardCategory: 'all', // 默认显示全部卡类别
       timeConfigs: [],
       currentConfig: {
         name: '',
@@ -127,10 +156,30 @@ export default {
   },
 
   methods: {
+    changeCardCategory(category) {
+      this.activeCardCategory = category
+      this.getCardStats()
+    },
+    
     async getCardStats() {
       try {
-        const { result } = await db.collection('Card')
-          .aggregate()
+        // 构建查询条件
+        let query = db.collection('Card').aggregate()
+        
+        // 如果选择了特定类别，添加筛选条件
+        if (this.activeCardCategory !== 'all') {
+          query = query.match({
+            cardCategory: this.activeCardCategory
+          })
+        }
+        
+        // 添加条件只获取日卡和月卡，排除次卡
+        query = query.match({
+          cardType: db.command.in(['daily', 'monthly'])
+        })
+        
+        // 执行聚合查询
+        const { result } = await query
           .group({
             _id: {
               cardType: '$cardType',
@@ -350,6 +399,37 @@ export default {
 
 .statistics-area {
   padding: 20rpx;
+}
+
+/* 卡类别筛选按钮样式 */
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+  flex-wrap: wrap;
+  padding: 10rpx;
+}
+
+.filter-btn {
+  min-width: 160rpx;
+  height: 80rpx;
+  border-radius: 40rpx;
+  background: #fff;
+  color: #606266;
+  font-size: 28rpx;
+  border: 2rpx solid #dcdfe6;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  line-height: 80rpx;
+  padding: 0 30rpx;
+  transition: all 0.3s;
+}
+
+.filter-btn.active {
+  background: #409EFF;
+  color: #fff;
+  border-color: #409EFF;
+  box-shadow: 0 4rpx 16rpx rgba(64, 158, 255, 0.4);
 }
 
 .stat-cards {
@@ -653,6 +733,15 @@ export default {
   
   .stat-card, .time-config-card {
     padding: 20rpx;
+  }
+  
+  .filter-buttons {
+    flex-wrap: wrap;
+  }
+  
+  .filter-btn {
+    min-width: 140rpx;
+    font-size: 26rpx;
   }
 }
 </style>

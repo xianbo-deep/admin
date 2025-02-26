@@ -23,7 +23,7 @@
       <unicloud-db 
         ref="udb" 
         collection="ExchangeRecord" 
-        field="userId,cardId,cardCode,redeemTime,cardType,cardValue"
+        field="userId,cardId,cardCode,redeemTime,cardType,cardValue,cardCategory"
         :where="where"
         page-data="replace" 
         :getcount="true" 
@@ -46,6 +46,7 @@
             <uni-th align="center">用户昵称</uni-th>
             <uni-th align="center">卡密</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'cardType')">卡密类型</uni-th>
+            <uni-th align="center" sortable @sort-change="sortChange($event, 'cardCategory')">卡类别</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'cardValue')">面值</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'redeemTime')">兑换时间</uni-th>
           </uni-tr>
@@ -61,6 +62,9 @@
             </uni-td>
             <uni-td align="center">
               <uni-tag :text="formatCardType(item.cardType)" :type="getCardTypeTag(item.cardType)" />
+            </uni-td>
+            <uni-td align="center">
+              <uni-tag :text="formatCardCategory(item.cardCategory)" :type="getCardCategoryTag(item.cardCategory)" />
             </uni-td>
             <uni-td align="center">{{formatCardValue(item.cardType, item.cardValue)}}</uni-td>
             <uni-td align="center">{{formatTime(item.redeemTime)}}</uni-td>
@@ -100,14 +104,26 @@ const orderByMapping = {
 
 const CARD_TYPE_MAP = {
   'daily': '日卡',
-  'monthly': '月卡',
-  'times': '次卡'
+  'monthly': '月卡'
 }
 
 const CARD_TYPE_TAG = {
   'daily': 'primary',
-  'monthly': 'success',
-  'times': 'warning'
+  'monthly': 'success'
+}
+
+const CARD_CATEGORY_MAP = {
+  'streamer': '主播卡',
+  'review': '测评卡',
+  'tutorial': '教程卡',
+  'enterprise': '企业卡'
+}
+
+const CARD_CATEGORY_TAG = {
+  'streamer': 'primary',
+  'review': 'warning',
+  'tutorial': 'success',
+  'enterprise': 'info'
 }
 
 export default {
@@ -166,12 +182,16 @@ export default {
       return CARD_TYPE_TAG[type] || 'info'
     },
 
+    formatCardCategory(category) {
+      return CARD_CATEGORY_MAP[category] || '未知'
+    },
+
+    getCardCategoryTag(category) {
+      return CARD_CATEGORY_TAG[category] || 'info'
+    },
+
     formatCardValue(type, value) {
-      if (type === 'times') {
-        return `${value}次`
-      } else {
-        return `${value}天`
-      }
+      return `${value}天`
     },
 
     // 修改 methods 中的搜索相关方法

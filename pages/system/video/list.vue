@@ -26,7 +26,7 @@
             <uni-th align="center" sortable @sort-change="sortChange($event, 'uploadTime')">上传时间</uni-th>
             <uni-th align="center" sortable @sort-change="sortChange($event, 'categoryId')">分类</uni-th>
             <uni-th align="center">视频描述</uni-th>
-            <uni-th align="center">学习进度</uni-th>
+           
             <uni-th align="center">操作</uni-th>
           </uni-tr>
           <uni-tr v-for="(item,index) in displayData" :key="index">
@@ -35,7 +35,7 @@
             <uni-td align="center">{{formatDate(item.uploadTime)}}</uni-td>
             <uni-td align="center">{{getCategoryName(item.categoryId)}}</uni-td>
             <uni-td align="center">{{item.description || '-'}}</uni-td>
-            <uni-td align="center">{{getProgressSummary(item.learningProgress)}}</uni-td>
+            
             <uni-td align="center">
               <view class="uni-group">
                 <button @click="navigateTo('./preview?id=' + item._id, false)" class="uni-button" size="mini" 
@@ -135,11 +135,7 @@ export default {
       return category ? category.name : categoryId
     },
 
-    getProgressSummary(progress) {
-      if (!progress || !Array.isArray(progress)) return '暂无数据'
-      const completed = progress.filter(p => p.completed).length
-      return `${completed}/${progress.length}人完成`
-    },
+    
 
     previewVideo(url) {
       if (!url) return
